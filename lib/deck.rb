@@ -30,6 +30,10 @@ class Deck
     @cards = deck.shuffle
   end
 
+  def draw
+    @cards.pop
+  end
+
   def test
     # Returns some numbers about the deck - good for debugging, but can be used in
     # handling decision trees.
