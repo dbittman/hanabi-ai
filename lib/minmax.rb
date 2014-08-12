@@ -43,13 +43,20 @@ Class Minmax
 	WEIGHT_GIVE_CLUE             =  2 # Giving a clue to a player who doesn't have a move
 	WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
-	def initialize(game_state_or_some_shit)
+	def initialize(game_state_or_some_shit, depth)
 
 	end
 
 	def build_tree
 		@root = MMTreenode.new()
-		
+		# For a move, we calculate a value for that move, and give it a child: the value
+		# for the opponent's move. That node then has, as children, the moves of the NEXT PLAYER.
+		# We can do this by making a NEW MINMAX TREE for the next player based on the board state
+		# after making the move that this tree comes from, and appending it to our current tree that
+		# we're building. We need to, then, limit the depth of the tree during creation (depth
+		# is reduced by one for every sub-tree we're making).
+		#
+		# This also allows a simple optimization later: reusing trees!
 	end
 
 	def process_tree
