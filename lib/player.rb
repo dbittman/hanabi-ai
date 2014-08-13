@@ -22,10 +22,12 @@ class Player
     end
   end
 
-  def take_turn
+  def take_turn(game_state)
     # Take your turn!
     # If human, displays.
     # If AI, does algorithm-y things.
+    # game_state refers to a hash of information about the game
+    # given by the core script.
     # TODO: Add AI
     banner = "#{@name}'s Turn!"
     puts banner
@@ -39,14 +41,78 @@ class Player
       end
       puts
       inspect_my_hand
+      puts
+      move = select_move(game_state)
+      if move == 1 # Play a card
+        play_a_card
+      elsif move == 2 # Give a clue
+        give_a_clue
+      elsif move == 3 # Discard a card
+        discard_a_card
+      end
     end
+  end
+
+  def play_a_card
+    # TODO
+    # Asks which card to play.
+    # returns a hash confirming that it is a play and the card being played.
+    # Remove that card this player's hand.
+    # Don't forget to draw!
+  end
+
+  def give_a_clue
+    # TODO
+    # Asks for what player they want to give a clue to.
+    # Then for color/number.
+    # Then lists possibilities.
+    # Returns a hash of the clue, for the main script to
+    # call get_clue on the receiver. (keeps the function
+    # clearer that way).
+  end
+
+  def discard_a_card
+    # TODO
+    # Same as play_a_card, except it returns a hash confirming
+    # that is a discard.
+  end
+
+  def select_move(game_state)
+    puts "You can:"
+    puts "  1) Play a card"
+    if game_state[:clue_tokens] > 0
+      puts "  2) Give a clue"
+    else
+      puts "  X) No clue tokens available"
+    end
+    puts "  3) Discard a card"
+    puts
+    derp = nil
+    while derp.nil?
+      print "Your move (q to quit): "
+      derp = STDIN.gets.chomp # STDIN for rake's benefit.
+      if derp == 'q'
+        exit
+      elsif derp == '1'
+        1
+      elsif derp == '2' and game_state[:clue_tokens] > 0
+        2
+      elsif derp == '3'
+        3
+      else
+        puts "Sorry, I didn't catch that..."
+        derp = nil
+      end
+    end
+    exit # Just to catch stupid shit from happening.
   end
 
   def inspect_my_hand
     # Displays what you know about your hand given from clues.
     puts "You have:"
+    n = 1
     @hand.each do |card|
-      print "  * A "
+      print "  #{n}) A "
       if @tags[card].nil?
         puts "mysterious card."
       else
@@ -58,6 +124,7 @@ class Player
         end
         puts
       end
+      n += 1
     end
   end
 

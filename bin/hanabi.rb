@@ -48,7 +48,14 @@ end
 
 welcome_banner
 get_players
-DECK = Deck.new
-deal_cards(DECK)
-cur_player = 0
-Player.all[cur_player].take_turn
+
+game_state = {
+  :deck => Deck.new,
+  :clue_tokens => 8,
+  :screw_ups_remaining => 3,
+  :discard => [],
+  :cur_player => 0
+}
+
+deal_cards(game_state[:deck])
+Player.all[game_state[:cur_player]].take_turn(game_state)
