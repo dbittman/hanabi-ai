@@ -3,12 +3,8 @@
 require_relative '../lib/card'
 require_relative '../lib/deck'
 require_relative '../lib/player'
-
-def welcome_banner
-  puts "Welcome to Hanabi!"
-  puts "=================="
-  puts
-end
+require_relative '../lib/helper'
+include Helper
 
 def get_players
   input = nil
@@ -16,13 +12,10 @@ def get_players
     cur = Player.all.length+1
     arg = cur-1
     if ARGV[arg]
-      puts "Player #{cur} is #{ARGV[arg]}!"
+      Helper.found_player(cur, ARGV[arg])
       Player.new(true, ARGV[arg])
     else
-      print "Who is Player #{cur}? "
-      if cur > 2
-        print "(type q to start the game) "
-      end
+      Helper.get_player(cur)
       input = gets.chomp
       Player.new(true, input) unless input == 'q' # TODO: Ask if AI or Human
     end
@@ -30,10 +23,7 @@ def get_players
 end
 
 def deal_cards(deck)
-  puts
-  puts "Dealing out cards..."
-  puts
-
+  Helper.deal
   number_of_cards = 5
   if Player.all.length > 3
     number_of_cards = 4
@@ -46,7 +36,7 @@ def deal_cards(deck)
   end
 end
 
-welcome_banner
+Helper.welcome_banner
 get_players
 
 game_state = {
@@ -58,4 +48,27 @@ game_state = {
 }
 
 deal_cards(game_state[:deck])
-Player.all[game_state[:cur_player]].take_turn(game_state)
+gameover = false
+
+while !gameover
+  cur_player = Player.all[game_state[:cur_player]]
+  Helper.player_banner(cur_player)
+  if cur_player.human
+    Helper.inspect_other_hands(Player.all, game_state[:cur_player])
+    Helper.inspect_my_hand(cur_player)
+    m = Helper.select_move(game_state)
+    puts m
+    exit # TODO: ACTUAL GAMEPLAY
+    if m == 'play'
+    elsif m == 'clue'
+    else
+    end
+  else
+    move = Player.determine_next_move(game_state)
+  end
+  Player.all[game_state[:cur_player]].take_turn(game_state)
+
+  # Determine if game is over, then move on.
+  # Move on to the next player
+  game_state[:cur_player] = (game_state[:cur_player] + 1) % Player.all.length
+end
