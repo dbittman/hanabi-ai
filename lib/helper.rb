@@ -100,4 +100,10 @@ module Helper
     end
     puts
   end
+
+  def choose_card(player)
+  end
+
+  def choose_clue(player)
+  end
 end

@@ -7,6 +7,8 @@ require_relative '../lib/helper'
 include Helper
 
 def get_players
+  # Need to keep this out of the Helper module because
+  # Dependencies on Player class.
   input = nil
   while input != 'q' and Player.all.length < 5
     cur = Player.all.length+1
@@ -23,6 +25,7 @@ def get_players
 end
 
 def deal_cards(deck)
+  # Ditto
   Helper.deal
   number_of_cards = 5
   if Player.all.length > 3
@@ -44,7 +47,8 @@ game_state = {
   :clue_tokens => 8,
   :screw_ups_remaining => 3,
   :discard => [],
-  :cur_player => 0
+  :cur_player => 0,
+  :piles = {}
 }
 
 deal_cards(game_state[:deck])
@@ -57,16 +61,29 @@ while !gameover
     Helper.inspect_other_hands(Player.all, game_state[:cur_player])
     Helper.inspect_my_hand(cur_player)
     m = Helper.select_move(game_state)
-    puts m
-    exit # TODO: ACTUAL GAMEPLAY
-    if m == 'play'
-    elsif m == 'clue'
-    else
-    end
   else
+    # The AI will automatically determine the move without
+    # all this silly helper business.
+    m = nil
     move = Player.determine_next_move(game_state)
   end
-  Player.all[game_state[:cur_player]].take_turn(game_state)
+
+  if m == 'play'
+    move = {:move => m, :selection => Helper.choose_card(cur_player)}
+  elsif m == 'clue'
+    p = Helper.choose_player
+    move = {:move => m, :player => p, :selection => Helper.choose_clue(p)}
+  elsif m == 'discard'
+    move = {:move => 'discard', :selection => Helper.choose_card(cur_player)}
+  end
+
+  # announce_and_perform alters the game_state based on the move.
+  # take_turn alters the player based on the move.
+  # e.g. I announce that I play a card, and that gets added to the
+  # appropriate pile - then I take my turn and remove it from my hand
+  # as a result.
+  Helper.announce_and_perform(move, game_state)
+  Player.all[game_state[:cur_player]].take_turn(move)
 
   # Determine if game is over, then move on.
   # Move on to the next player
