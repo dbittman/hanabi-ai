@@ -30,7 +30,7 @@ class Player
     if m == 'clue'
       give_a_clue(move[:player], move[:selection])
     else # discard or play
-      use_a_card(move[:selection])
+      use_a_card(@hand.find_index(move[:selection]))
     end
   end
 

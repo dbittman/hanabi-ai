@@ -70,8 +70,10 @@ module Helper
       cur_player = all_players[cur]
       cards = cur_player.hand
       puts "#{cur_player.name} has:"
+      n = 1
       cards.each do |card|
-        puts "  * #{card.color_id_to_name} #{card.number}"
+        puts "  #{n}) #{card.color_id_to_name} #{card.number}"
+        n += 1
       end
       cur = (cur + 1) % all_players.length
     end
@@ -102,8 +104,134 @@ module Helper
   end
 
   def choose_card(player)
+    # Give a prompt and grab the selected index from the given player.
+    card = nil
+    while card.nil?
+      print "Which card? "
+      i = STDIN.gets.chomp
+      card = player.hand[i.to_i-1]
+    end
+    puts
+    return card
+  end
+
+  def choose_player(players)
+    # Let the player select a player from all available.
+    p = nil
+    while p.nil?
+      print "Which player? "
+      i = STDIN.gets.chomp
+      players.each do |player|
+        if i == player.name
+          p = player
+        end
+      end
+    end
+    puts
+    return p
   end
 
   def choose_clue(player)
+    # Look at the cards in the players hand.
+    # What clues are available to give?
+    # Return a color or a number.
+    # TODO: Refactor this
+    clues = Hash.new
+    player.hand.each do |card|
+      clues[card.color_id_to_name] = true
+      clues[card.number] = true
+    end
+    puts "You can give one of the following clues:"
+    n = 1
+    clues_array = []
+    clues.each_key do |k|
+      clues_array << k
+      print "  #{n}) There are cards that show "
+      if k.is_a? Integer
+        puts "the number #{k}."
+      else
+        puts "the color #{k}."
+      end
+      n += 1
+    end
+    puts
+    clue = nil
+    while clue.nil?
+      print "Which clue? "
+      i = STDIN.gets.chomp
+      clue = clues_array[i.to_i]
+    end
+    return clue
+  end
+
+  def valid_play(card, game_state)
+    # Is a card valid to play?
+    pile = game_state[:piles][card.color_id_to_name]
+    if card.number - 1 == pile
+      return true
+    elsif card.number == 1 and pile.nil?
+      return true
+    end
+    return false
+  end
+
+  def inspect_piles(piles)
+    if piles != {}
+      puts "Team's Score:"
+      piles.each do |k, v|
+        puts "  * #{k}: #{v}"
+      end
+    else
+      puts "Nothing has been played yet!"
+    end
+    puts
+  end
+
+  def inspect_screw_ups(screw_ups, cards_remaining)
+    puts "You have #{screw_ups} chances left, and #{cards_remaining} cards in the deck."
+    puts
+  end
+
+  def inspect_discard(discard)
+    if discard != []
+      puts "In the discard there is:"
+      discard.each do |card|
+        puts "  * #{card.color_id_to_name} #{card.number}"
+      end
+    else
+      puts "There is nothing in the discard!"
+    end
+    puts
+  end
+
+  def announce_and_perform(move, game_state)
+    # Give a move, announce what the move is. Then perform
+    # all of the actions on the GAME STATE.
+    # It also handles drawing.
+    # TODO: Refactor
+    action = move[:move]
+    selection = move[:selection]
+    player = move[:current_player]
+    string = "#{player.name} chose to "
+    if action == 'play'
+      string << "play their #{selection.color_id_to_name} #{selection.number}!"
+      if valid_play(selection, game_state)
+        game_state[:piles][selection.color_id_to_name] = selection.number
+        string << " (VALID)"
+      else
+        string << " (INVALID)"
+        game_state[:discard] << selection
+      end
+      player.draw(game_state[:deck])
+    elsif action == 'clue'
+      string << "give #{move[:player].name} a clue: they have #{selection}'s in their hand!"
+      player.give_a_clue(move[:player], selection)
+    else # Discard
+      string << "discard their #{selection.color_id_to_name} #{selection.number}!"
+      game_state[:discard] << selection
+      player.draw(game_state[:deck])
+    end
+    puts string.upcase
+    puts
   end
 end

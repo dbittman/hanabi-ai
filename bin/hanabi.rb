@@ -48,7 +48,7 @@ game_state = {
   :screw_ups_remaining => 3,
   :discard => [],
   :cur_player => 0,
-  :piles = {}
+  :piles => {}
 }
 
 deal_cards(game_state[:deck])
@@ -60,7 +60,11 @@ while !gameover
   if cur_player.human
     Helper.inspect_other_hands(Player.all, game_state[:cur_player])
     Helper.inspect_my_hand(cur_player)
+    Helper.inspect_piles(game_state[:piles])
+    Helper.inspect_discard(game_state[:discard])
+    Helper.inspect_screw_ups(game_state[:screw_ups_remaining], game_state[:deck].cards.length)
     m = Helper.select_move(game_state)
+    move = {:move => m, :current_player => cur_player}
   else
     # The AI will automatically determine the move without
     # all this silly helper business.
@@ -69,12 +73,12 @@ while !gameover
   end
 
   if m == 'play'
-    move = {:move => m, :selection => Helper.choose_card(cur_player)}
+    move[:selection] = Helper.choose_card(cur_player)
   elsif m == 'clue'
-    p = Helper.choose_player
-    move = {:move => m, :player => p, :selection => Helper.choose_clue(p)}
+    move[:player] = Helper.choose_player(Player.all)
+    move[:selection] = Helper.choose_clue(p)
   elsif m == 'discard'
-    move = {:move => 'discard', :selection => Helper.choose_card(cur_player)}
+    move[:selection] = Helper.choose_card(cur_player)
   end
 
   # announce_and_perform alters the game_state based on the move.
