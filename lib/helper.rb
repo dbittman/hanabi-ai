@@ -230,6 +230,7 @@ module Helper
       player.give_a_clue(move[:player], selection)
     else # Discard
       string << "discard their #{selection.color_id_to_name} #{selection.number}!"
+      game_state[:clue_tokens] += 1
       game_state[:discard] << selection
       player.draw(game_state[:deck])
     end
