@@ -1,10 +1,11 @@
 Class MMTreenode
   include Enumerable
-  attr_reader :children
+  attr_reader :children :total_value :value
 
   def initialize(value=0)
     @children = []
     @value = value
+    @total_value = 0 # calculated
   end
 
   def add_child(ch)
@@ -54,7 +55,17 @@ Class Minmax
   end
 
   def enumerate_moves
-
+    @hands[0].each { |card|
+      # each card, either play, or discard. we need to know the "tags" we have
+      # to determine if it's SAFE, UNSAFE or a GUESS (or is BAD). We use what
+      # we know to determine what we believe.
+      #
+      # We'll need to also record what kinda of move this is inside the
+      # node, so that later we can read out the move from the node after
+      # the tree is processed.
+      
+    }
+    # all_players.each { |player| construct node for each hint we can give }
   end
 
   def build_tree
@@ -87,9 +98,13 @@ Class Minmax
 
   end
 
-  def process_tree
+  def process_tree(treeroot)
     # Traverse the current tree for the optimal play.
-    # Returns a hash that can be interpreted by AI players into an actual move.
+    treeroot.each { |child|
+      process_tree(child)
+      treeroot.total_value += child.total_value
+    }
+    treeroot.total_value += treeroot.value
   end
 end
 
