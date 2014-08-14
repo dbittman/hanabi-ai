@@ -1,9 +1,11 @@
 Class MMTreenode
   include Enumerable
+  attr_reader :children :total_value :value
 
-  def initialize(value=nil)
+  def initialize(value=0)
     @children = []
     @value = value
+    @total_value = 0 # calculated
   end
 
   def add_child(ch)
@@ -39,15 +41,31 @@ Class Minmax
   WEIGHT_GIVE_CLUE             =  2 # Giving a clue to a player who doesn't have a move
   WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
-  def initialize(hands=[], deck, discard=nil, depth)
+  def initialize(tags=[], hands=[], deck, discard=nil, depth)
     # Game state is broken up into a couple of different pieces.
+    # tags: an array of all the tags for each player, in order of each player (index 0 is current player).
     # hands: an array of every hand, in order of player (index 0 is current player).
     # deck: so we can do some basic analysis (how many cards left?)
     # discard: if the game is played with open discard.
     @hands = hands
+	@tags = tags
     @deck = deck
     @discard = discard
     @depth = depth
+  end
+
+  def enumerate_moves
+    @hands[0].each { |card|
+      # each card, either play, or discard. we need to know the "tags" we have
+      # to determine if it's SAFE, UNSAFE or a GUESS (or is BAD). We use what
+      # we know to determine what we believe.
+      #
+      # We'll need to also record what kinda of move this is inside the
+      # node, so that later we can read out the move from the node after
+      # the tree is processed.
+      
+    }
+    # all_players.each { |player| construct node for each hint we can give }
   end
 
   def build_tree
@@ -63,10 +81,30 @@ Class Minmax
     # (so that they can determine the best possible move for the next round.)
     #
     # This also allows a simple optimization later: reusing trees!
+
+    # this adds all our moves to the tree
+    enumerate_moves()
+
+	if depth > 1
+      @root.each { |node|
+        # 'node' is a potential move for us
+        opponent = node.children[0] # only one child, only one opponent move
+        # a.push(a.shift) is some ruby magic to rotate the array
+        mm = Minmax(@tags.push(@tags.shift), @hands.push(@hands.shift), deck - 1, discard, depth - 1)
+		mm.build_tree
+        opponent.add_child(mm.root)
+      }
+    end
+
   end
 
-  def process_tree
+  def process_tree(treeroot)
     # Traverse the current tree for the optimal play.
-    # Returns a hash that can be interpreted by AI players into an actual move.
+    treeroot.each { |child|
+      process_tree(child)
+      treeroot.total_value += child.total_value
+    }
+    treeroot.total_value += treeroot.value
   end
 end
+
