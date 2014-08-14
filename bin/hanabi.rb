@@ -48,6 +48,7 @@ game_state = {
   :screw_ups_remaining => 3,
   :discard => [],
   :cur_player => 0,
+  :turns_left = nil,
   :piles => {}
 }
 
@@ -62,7 +63,9 @@ while !gameover
     Helper.inspect_my_hand(cur_player)
     Helper.inspect_piles(game_state[:piles])
     Helper.inspect_discard(game_state[:discard])
-    Helper.inspect_screw_ups(game_state[:screw_ups_remaining], game_state[:deck].cards.length)
+    Helper.inspect_screw_ups(game_state[:screw_ups_remaining],
+                             game_state[:clue_tokens],
+                             game_state[:deck].cards.length)
     m = Helper.select_move(game_state)
     move = {:move => m, :current_player => cur_player}
   else
@@ -76,7 +79,7 @@ while !gameover
     move[:selection] = Helper.choose_card(cur_player)
   elsif m == 'clue'
     move[:player] = Helper.choose_player(Player.all)
-    move[:selection] = Helper.choose_clue(p)
+    move[:selection] = Helper.choose_clue(move[:player])
   elsif m == 'discard'
     move[:selection] = Helper.choose_card(cur_player)
   end
@@ -91,5 +94,5 @@ while !gameover
 
   # Determine if game is over, then move on.
   # Move on to the next player
-  game_state[:cur_player] = (game_state[:cur_player] + 1) % Player.all.length
+  game_state[:cur_player] = (game_state[:cur_player] + 1) % (Player.all.length - 1)
 end

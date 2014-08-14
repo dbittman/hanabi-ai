@@ -9,7 +9,7 @@ class Player
     @name = name
     @human = human
     @hand = []
-    @tags = {}
+    @tags = Hash.new
     @id = @@all.length
     @@all << self
   end
@@ -52,6 +52,25 @@ class Player
     # based on the selection.
     # Regardless, create @tags[@hand[card]] = Hash.new nil
     # TODO
+    if selection.is_a? Integer
+      @hand.each do |card|
+        if card.number == selection
+          if @tags[card] == nil
+            @tags[card] = {}
+          end
+          @tags[card][:number] = selection
+        end
+      end
+    else
+      @hand.each do |card|
+        if card.color_id_to_name == selection
+          if @tags[card] == nil
+            @tags[card] = {}
+          end
+          @tags[card][:color] = selection
+        end
+      end
+    end
   end
 
   def self.all

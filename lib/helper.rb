@@ -87,14 +87,14 @@ module Helper
     n = 1
     hand.each do |card|
       print "  #{n}) A "
-      if tags[card].nil?
+      if tags[card] == nil
         puts "mysterious card."
       else
-        if tags[card]['color']
-          print tags[card]['color'] + ' '
+        if tags[card][:color]
+          print tags[card][:color] + ' '
         end
-        if tags[card]['number']
-          print tags[card]['number']
+        if tags[card][:number]
+          print tags[card][:number]
         end
         puts
       end
@@ -159,7 +159,7 @@ module Helper
     while clue.nil?
       print "Which clue? "
       i = STDIN.gets.chomp
-      clue = clues_array[i.to_i]
+      clue = clues_array[i.to_i - 1]
     end
     return clue
   end
@@ -187,8 +187,8 @@ module Helper
     puts
   end
 
-  def inspect_screw_ups(screw_ups, cards_remaining)
-    puts "You have #{screw_ups} chances left, and #{cards_remaining} cards in the deck."
+  def inspect_screw_ups(screw_ups, clue_tokens, cards_remaining)
+    puts "You have #{screw_ups} chances left, #{clue_tokens} clue tokens left, and #{cards_remaining} cards in the deck."
     puts
   end
 
@@ -196,7 +196,7 @@ module Helper
     if discard != []
       puts "In the discard there is:"
       discard.each do |card|
-        puts "  * #{card.color_id_to_name} #{card.number}"
+       puts "  * #{card.color_id_to_name} #{card.number}"
       end
     else
       puts "There is nothing in the discard!"
@@ -225,6 +225,7 @@ module Helper
       player.draw(game_state[:deck])
     elsif action == 'clue'
       string << "give #{move[:player].name} a clue: they have #{selection}'s in their hand!"
+      game_state[:clue_tokens] += -1
       player.give_a_clue(move[:player], selection)
     else # Discard
       string << "discard their #{selection.color_id_to_name} #{selection.number}!"
