@@ -48,14 +48,14 @@ Class Minmax
     # deck: so we can do some basic analysis (how many cards left?)
     # discard: if the game is played with open discard.
     @hands = hands
-	@tags = tags
+    @tags = tags
     @deck = deck
     @discard = discard
     @depth = depth
   end
 
   def enumerate_moves
-    @hands[0].each { |card|
+    @hands[0].each do |card|
       # each card, either play, or discard. we need to know the "tags" we have
       # to determine if it's SAFE, UNSAFE or a GUESS (or is BAD). We use what
       # we know to determine what we believe.
@@ -63,8 +63,7 @@ Class Minmax
       # We'll need to also record what kinda of move this is inside the
       # node, so that later we can read out the move from the node after
       # the tree is processed.
-      
-    }
+    end  
     # all_players.each { |player| construct node for each hint we can give }
   end
 
@@ -85,25 +84,24 @@ Class Minmax
     # this adds all our moves to the tree
     enumerate_moves()
 
-	if depth > 1
-      @root.each { |node|
+    if depth > 1
+      @root.each do |node|
         # 'node' is a potential move for us
         opponent = node.children[0] # only one child, only one opponent move
         # a.push(a.shift) is some ruby magic to rotate the array
         mm = Minmax(@tags.push(@tags.shift), @hands.push(@hands.shift), deck - 1, discard, depth - 1)
 		mm.build_tree
         opponent.add_child(mm.root)
-      }
+      end
     end
-
   end
 
   def process_tree(treeroot)
     # Traverse the current tree for the optimal play.
-    treeroot.each { |child|
+    treeroot.each do |child|
       process_tree(child)
       treeroot.total_value += child.total_value
-    }
+    end
     treeroot.total_value += treeroot.value
   end
 end
