@@ -48,7 +48,7 @@ game_state = {
   :screw_ups_remaining => 3,
   :discard => [],
   :cur_player => 0,
-  :turns_left = nil,
+  :last_player => nil,
   :piles => {}
 }
 
@@ -94,5 +94,8 @@ while !gameover
 
   # Determine if game is over, then move on.
   # Move on to the next player
+  if Helper.game_over(game_state)
+    Helper.end_game(game_state)
+  end
   game_state[:cur_player] = (game_state[:cur_player] + 1) % (Player.all.length - 1)
 end

@@ -220,6 +220,7 @@ module Helper
         string << " (VALID)"
       else
         string << " (INVALID)"
+        game_state[:screw_ups_remaining] += -1
         game_state[:discard] << selection
       end
       player.draw(game_state[:deck])
@@ -234,5 +235,30 @@ module Helper
     end
     puts string.upcase
     puts
+  end
+
+  def game_over(game_state)
+    # Determines if game is over.
+    if game_state[:screw_ups_remaining] < 1
+      return true
+    elsif game_state[:deck].cards.length < 1
+      if game_state[:last_player].nil?
+        game_state[:last_player] = game_state[:cur_player]
+        return false
+      elsif game_state[:last_player] == game_state[:cur_player]
+        return true
+      end
+    end
+    return false
+  end
+
+  def end_game(game_state)
+    # End the game!
+    final_score = 0
+    game_state[:piles].each do |color, value|
+      final_score += value
+    end
+    puts "The team's final score was #{final_score}!"
+    exit
   end
 end
