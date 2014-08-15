@@ -1,6 +1,6 @@
 Class MMTreenode
   include Enumerable
-  attr_reader :children :total_value :value
+  attr_reader :children :total_value :value :tags :hands
 
   def initialize(value=0)
     @children = []
@@ -42,6 +42,7 @@ Class Minmax
   WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
   def initialize(tags=[], hands=[], deck, discard=nil, depth)
+    # All the elements of tags and hands MUST BE CLONES of the player's tags and hands.
     # Game state is broken up into a couple of different pieces.
     # tags: an array of all the tags for each player, in order of each player (index 0 is current player).
     # hands: an array of every hand, in order of player (index 0 is current player).
@@ -63,6 +64,7 @@ Class Minmax
       # We'll need to also record what kinda of move this is inside the
       # node, so that later we can read out the move from the node after
       # the tree is processed.
+      # In addition, we record the new game state for AFTER move is made: modified tags, hands, and such.
     end  
     # all_players.each { |player| construct node for each hint we can give }
   end
@@ -89,7 +91,7 @@ Class Minmax
         # 'node' is a potential move for us
         opponent = node.children[0] # only one child, only one opponent move
         # a.push(a.shift) is some ruby magic to rotate the array
-        mm = Minmax(@tags.push(@tags.shift), @hands.push(@hands.shift), deck - 1, discard, depth - 1)
+        mm = Minmax(node.tags.push(node.tags.shift), node.hands.push(node.hands.shift), deck - 1, discard, depth - 1)
 		mm.build_tree
         opponent.add_child(mm.root)
       end
