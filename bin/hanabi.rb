@@ -15,11 +15,11 @@ def get_players
     arg = cur-1
     if ARGV[arg]
       Helper.found_player(cur, ARGV[arg])
-      Player.new(true, ARGV[arg])
+      Player.new(false, ARGV[arg])
     else
       Helper.get_player(cur)
       input = gets.chomp
-      Player.new(true, input) unless input == 'q' # TODO: Ask if AI or Human
+      Player.new(false, input) unless input == 'q' # TODO: Ask if AI or Human
     end
   end
 end
@@ -55,7 +55,7 @@ game_state = {
 deal_cards(game_state[:deck])
 gameover = false
 
-while !gameover
+while true
   cur_player = Player.all[game_state[:cur_player]]
   Helper.player_banner(cur_player)
   if cur_player.human
@@ -72,7 +72,7 @@ while !gameover
     # The AI will automatically determine the move without
     # all this silly helper business.
     m = nil
-    move = Player.determine_next_move(game_state)
+    move = cur_player.determine_next_move(game_state)
   end
 
   if m == 'play'

@@ -34,6 +34,15 @@ class Player
     end
   end
 
+  def determine_next_move(game_state)
+    # Interacts with Minmax class to determine the best
+    # possible move to make at this instance.
+    # Returns a hash that explains the move that is being
+    # taken, similar to what we do for humans.
+    return {:move => 'play', :current_player => self,
+            :selection => @hand[0]}
+  end
+
   def use_a_card(card)
     # Remove a card from hand.
     @hand.delete_at(card)
