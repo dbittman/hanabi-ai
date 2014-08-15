@@ -96,6 +96,7 @@ while true
   # Move on to the next player
   if Helper.game_over(game_state)
     Helper.end_game(game_state)
+    exit
   end
   game_state[:cur_player] = (game_state[:cur_player] + 1) % (Player.all.length - 1)
 end

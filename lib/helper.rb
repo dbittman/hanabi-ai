@@ -260,6 +260,6 @@ module Helper
       final_score += value
     end
     puts "The team's final score was #{final_score}!"
-    exit
+    return final_score
   end
 end
