@@ -49,17 +49,18 @@ game_state = {
   :discard => [],
   :cur_player => 0,
   :last_player => nil,
-  :piles => {}
+  :piles => {},
+  :players => Player.all
 }
 
 deal_cards(game_state[:deck])
 gameover = false
 
 while true
-  cur_player = Player.all[game_state[:cur_player]]
+  cur_player = game_state[:players][game_state[:cur_player]]
   Helper.player_banner(cur_player)
   if cur_player.human
-    Helper.inspect_other_hands(Player.all, game_state[:cur_player])
+    Helper.inspect_other_hands(game_state[:players], game_state[:cur_player])
     Helper.inspect_my_hand(cur_player)
     Helper.inspect_piles(game_state[:piles])
     Helper.inspect_discard(game_state[:discard])
@@ -90,7 +91,7 @@ while true
   # appropriate pile - then I take my turn and remove it from my hand
   # as a result.
   Helper.announce_and_perform(move, game_state)
-  Player.all[game_state[:cur_player]].take_turn(move)
+  game_state[:players][game_state[:cur_player]].take_turn(move)
 
   # Determine if game is over, then move on.
   # Move on to the next player
@@ -98,5 +99,5 @@ while true
     Helper.end_game(game_state)
     exit
   end
-  game_state[:cur_player] = (game_state[:cur_player] + 1) % (Player.all.length - 1)
+  game_state[:cur_player] = (game_state[:cur_player] + 1) % (game_state[:players].length - 1)
 end
