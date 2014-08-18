@@ -1,6 +1,6 @@
 Class MMTreenode
   include Enumerable
-  attr_reader :children :total_value :value :tags :hands
+  attr_reader :children, :total_value, :value, :tags, :hands
 
   def initialize(value=0)
     @children = []
