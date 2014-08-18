@@ -39,6 +39,7 @@ class Player
     # possible move to make at this instance.
     # Returns a hash that explains the move that is being
     # taken, similar to what we do for humans.
+    # TODO: Add Minmax
     return {:move => 'play', :current_player => self,
             :selection => @hand[0]}
   end

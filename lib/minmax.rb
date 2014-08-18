@@ -41,17 +41,26 @@ Class Minmax
   WEIGHT_GIVE_CLUE             =  2 # Giving a clue to a player who doesn't have a move
   WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
-  def initialize(tags=[], hands=[], deck, discard=nil, depth)
+  def initialize(game_state, depth=5)
+  # def initialize(tags=[], hands=[], deck, discard=nil, depth)
     # All the elements of tags and hands MUST BE CLONES of the player's tags and hands.
     # Game state is broken up into a couple of different pieces.
     # tags: an array of all the tags for each player, in order of each player (index 0 is current player).
     # hands: an array of every hand, in order of player (index 0 is current player).
     # deck: so we can do some basic analysis (how many cards left?)
     # discard: if the game is played with open discard.
-    @hands = hands
+    @hands = []
     @tags = tags
-    @deck = deck
-    @discard = discard
+    i = 0
+    n = game_state[:cur_player]
+    while i < game_state[:players].length
+      hands << game_state[:players][n].hand
+      tags << game_state[:players][n].tags
+      i += 1
+      n = (n + 1) % (game_state[:players].length -1)
+    end
+    @deck = game_state[:deck]
+    @discard = game_state[:discard]
     @depth = depth
   end
 
