@@ -42,31 +42,53 @@ class Minmax
   WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
   def initialize(game_state, depth=5)
-    # Here we clone the game_state, since it has everything we need to play through.
-    # Check bin/hanabi - but basically game_state has:
-    # The deck
-    # The number of clue tokens
-    # Number of screw ups left
-    # The discard
-    # The index of the current player
-    # The last player to play (if we're on the last cycle)
-    # The piles of valid played cards
-    # A list of players
-    @game_state = game_state.clone
+    # We get the original game_state at time of initialization
+    # Then we clone the relevant information and extrapolate additional information.
+    # We leave out information that isn't necessary, but we clone everything
+    # to prevent tampering.
+    @game_state = {
+      :clue_tokens = game_state[:clue_tokens].clone,
+      :screw_ups_remaining = game_state[:screw_ups_remaining].clone,
+      :discard = game_state[:discard].clone,
+      :cur_player = game_state[:cur_player].clone,
+      :last_player = game_state[:last_player].clone,
+      :piles = game_state[:piles].clone,
+      :tags = [],
+      :hands = []
+    }
+    @players.each do |p|
+      @game_state[:tags] << p.tags.clone
+      @game_state[:hands] << p.hand.clone
+    end
   end
 
   def enumerate_moves
-    @hands[0].each do |card|
-      # each card, either play, or discard. we need to know the "tags" we have
-      # to determine if it's SAFE, UNSAFE or a GUESS (or is BAD). We use what
-      # we know to determine what we believe.
-      #
-      # We'll need to also record what kinda of move this is inside the
-      # node, so that later we can read out the move from the node after
-      # the tree is processed.
-      # In addition, we record the new game state for AFTER move is made: modified tags, hands, and such.
+    nodes = []
+    hand = @game_state[:hands][@game_state[:cur_player]]
+    tags = @game_state[:tags][@game_state[:cur_player]]
+    (0...hand.length).each do |card_index|
+      # We look at the hand for the current player (in this simulation)
+      # and then we determine what moves are available for each card.
+      # Returns an array of nodes.
+      card = hand[card_index]
+      tagged_as = tags[card_index]
+      if tagged_as.nil?
+        certainty = 0
+      else
+        certainty = tagged_as.length
+      end
+
+      if certainty == 0
+        nodes << MMTreeNode.new(WEIGHT_DISCARD_CARD_UNSAFE)
+        nodes << MMTreeNode.new(WEIGHT_PLAY_CARD_GUESS)
+      elsif certainty == 1
+        # Determine if either the color or the number is relevant
+        # Then determine if either are playable.
+      else
+        # Does that exact card exist on board?
+        # If so, discard for sure, else play.
+      end
     end  
-    # all_players.each { |player| construct node for each hint we can give }
   end
 
   def build_tree
