@@ -1,3 +1,5 @@
+require_relative 'minmax'
+
 class Player
   # This is the player class.
   # Human and AI players are represented through here.
@@ -40,6 +42,7 @@ class Player
     # Returns a hash that explains the move that is being
     # taken, similar to what we do for humans.
     # TODO: Add Minmax
+    Minmax.new(game_state)
     return {:move => 'play', :current_player => self,
             :selection => @hand[0]}
   end

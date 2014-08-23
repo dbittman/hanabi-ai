@@ -1,4 +1,4 @@
-Class MMTreenode
+class MMTreenode
   include Enumerable
   attr_reader :children, :total_value, :value, :tags, :hands
 
@@ -17,7 +17,7 @@ Class MMTreenode
   end
 end
 
-Class Minmax
+class Minmax
   # This tree has a large number of possible actions:
   #  * Play
   #    - Try playing each card, some of which may be safe, some may not
@@ -42,26 +42,17 @@ Class Minmax
   WEIGHT_GIVE_CLUE_SUPERFLUOUS =  0 # when hint is given to a player that has a move
 
   def initialize(game_state, depth=5)
-  # def initialize(tags=[], hands=[], deck, discard=nil, depth)
-    # All the elements of tags and hands MUST BE CLONES of the player's tags and hands.
-    # Game state is broken up into a couple of different pieces.
-    # tags: an array of all the tags for each player, in order of each player (index 0 is current player).
-    # hands: an array of every hand, in order of player (index 0 is current player).
-    # deck: so we can do some basic analysis (how many cards left?)
-    # discard: if the game is played with open discard.
-    @hands = []
-    @tags = tags
-    i = 0
-    n = game_state[:cur_player]
-    while i < game_state[:players].length
-      hands << game_state[:players][n].hand
-      tags << game_state[:players][n].tags
-      i += 1
-      n = (n + 1) % (game_state[:players].length -1)
-    end
-    @deck = game_state[:deck]
-    @discard = game_state[:discard]
-    @depth = depth
+    # Here we clone the game_state, since it has everything we need to play through.
+    # Check bin/hanabi - but basically game_state has:
+    # The deck
+    # The number of clue tokens
+    # Number of screw ups left
+    # The discard
+    # The index of the current player
+    # The last player to play (if we're on the last cycle)
+    # The piles of valid played cards
+    # A list of players
+    @game_state = game_state.clone
   end
 
   def enumerate_moves
@@ -116,4 +107,3 @@ Class Minmax
     treeroot.total_value += treeroot.value
   end
 end
-
